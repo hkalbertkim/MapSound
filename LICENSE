@@ -4,12 +4,13 @@ Parameters
 
 Licensor:             Albert Kim / MapSound
 Licensed Work:        MapSound
-Additional Use Grant: You may make personal, educational, research, and
-                      non-commercial use of the Licensed Work. You may not
-                      use the Licensed Work for hosted SaaS, paid APIs,
-                      commercial redistribution, white-label services, or
-                      enterprise production deployment without a separate
-                      commercial license from the Licensor.
+Additional Use Grant: You may make personal, non-commercial, educational,
+                      research, and internal evaluation use of the Licensed
+                      Work only. You may not use the Licensed Work for hosted
+                      SaaS, paid APIs, commercial redistribution, white-label
+                      services, enterprise production deployment, or other
+                      commercial use without a separate commercial license
+                      from the Licensor.
 Change Date:          2029-01-01
 Change License:       GPL-3.0-or-later
 
