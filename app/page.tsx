@@ -1,4 +1,12 @@
+/*
+Copyright (c) 2026 Albert Kim
+MapSound is licensed under the Business Source License 1.1 (BSL).
+Use of this software for commercial purposes requires a commercial license.
+Change Date: 2029-01-01
+Change License: GPL-3.0-or-later
+*/
 import SonicMapBoard from "@/components/SonicMapBoard";
+import { ReactFlowProvider } from "@xyflow/react";
 
 export default function Home() {
   return (
@@ -36,8 +44,10 @@ export default function Home() {
 
       {/* App Workspace Area */}
       <div className="w-full max-w-6xl mx-auto flex-1 flex flex-col">
-        <div className="flex-1 min-h-[600px] w-full p-1 rounded-3xl bg-gradient-to-b from-white/10 to-transparent shadow-2xl transition-all duration-500 hover:shadow-purple-500/10 hover:border-white/20">
-          <SonicMapBoard />
+        <div className="flex-1 min-h-[800px] w-full p-1 rounded-3xl bg-gradient-to-b from-white/10 to-transparent shadow-2xl transition-all duration-500 hover:shadow-purple-500/10 hover:border-white/20">
+          <ReactFlowProvider>
+            <SonicMapBoard />
+          </ReactFlowProvider>
         </div>
       </div>
     </main>

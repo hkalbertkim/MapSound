@@ -55,9 +55,19 @@ MapSound is an open-source project, and we welcome contributions from developers
 
 Please check our [ISSUES](https://github.com/hkalbertkim/MapSound/issues) or [DISCUSSIONS](https://github.com/hkalbertkim/MapSound/discussions) tabs to see where you can help.
 
-## 📜 License
+## License
 
-This project is licensed under the [AGPL-3.0 License](./LICENSE).
+MapSound is released under the Business Source License (BSL 1.1).
+
+The source code is publicly visible and may be used for personal,
+educational, research, and non-commercial purposes.
+
+Commercial use of the MapSound platform, including running it as a hosted
+service, requires a commercial license.
+
+On 2029-01-01 the code will convert to GPL-3.0-or-later.
+
+See [COMMERCIAL.md](./COMMERCIAL.md) for commercial licensing guidance.
 
 ---
 

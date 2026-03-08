@@ -1,3 +1,10 @@
+/*
+Copyright (c) 2026 Albert Kim
+MapSound is licensed under the Business Source License 1.1 (BSL).
+Use of this software for commercial purposes requires a commercial license.
+Change Date: 2029-01-01
+Change License: GPL-3.0-or-later
+*/
 @import "tailwindcss";
 @import "@xyflow/react/dist/style.css";
 
@@ -40,4 +47,3 @@ body {
     stroke-dashoffset: 0;
   }
 }
-

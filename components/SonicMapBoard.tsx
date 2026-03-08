@@ -1,6 +1,13 @@
+/*
+Copyright (c) 2026 Albert Kim
+MapSound is licensed under the Business Source License 1.1 (BSL).
+Use of this software for commercial purposes requires a commercial license.
+Change Date: 2029-01-01
+Change License: GPL-3.0-or-later
+*/
 "use client";
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   ReactFlow,
   useNodesState,
@@ -11,9 +18,11 @@ import {
   Connection,
   Edge,
   Node,
-  NodeMouseHandler
+  NodeMouseHandler,
+  useReactFlow
 } from '@xyflow/react';
 import CustomNode from './CustomNode';
+import SeedSearchBar from './SeedSearchBar';
 
 const nodeTypes = {
   custom: CustomNode,
@@ -101,10 +110,40 @@ const initialEdges: Edge[] = [
 ];
 
 export default function SonicMapBoard() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const { fitView } = useReactFlow();
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioResult, setAudioResult] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load from local storage on mount
+  useEffect(() => {
+    try {
+      const savedNodes = localStorage.getItem('mapsound-nodes');
+      const savedEdges = localStorage.getItem('mapsound-edges');
+      if (savedNodes && savedEdges) {
+        setNodes(JSON.parse(savedNodes));
+        setEdges(JSON.parse(savedEdges));
+      } else {
+        setNodes(initialNodes);
+        setEdges(initialEdges);
+      }
+    } catch (e) {
+      console.error("Failed to parse local storage", e);
+      setNodes(initialNodes);
+      setEdges(initialEdges);
+    }
+    setIsLoaded(true);
+  }, [setNodes, setEdges]);
+
+  // Save to local storage when state changes
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('mapsound-nodes', JSON.stringify(nodes));
+      localStorage.setItem('mapsound-edges', JSON.stringify(edges));
+    }
+  }, [nodes, edges, isLoaded]);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -216,38 +255,58 @@ export default function SonicMapBoard() {
     setNodes((nds) => [...nds, newNode]);
   };
 
+  const handleSpotifySearchComplete = useCallback((newNodes: Node[], newEdges: Edge[]) => {
+    console.log("🎯 Spotify Search Complete! Updating UI with nodes:", newNodes.length);
+    setNodes(newNodes);
+    setEdges(newEdges);
+    setAudioResult(null); // Clear previous tribute audio if a new search is made
+    
+    // Auto-pan viewport to frame the new elements
+    setTimeout(() => {
+      fitView({ padding: 0.2, duration: 800 });
+    }, 50);
+  }, [setNodes, setEdges, fitView]);
+
   return (
-    <div className="w-full h-full min-h-[600px] border border-white/10 rounded-[1.4rem] bg-black/40 backdrop-blur-md relative overflow-hidden shadow-2xl">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeDoubleClick={handleNodeDoubleClick}
-        nodeTypes={nodeTypes}
-        fitView
-        className="bg-transparent"
-      >
-        <Background color="#ffffff" gap={24} size={1} />
-        <Controls 
-          className="bg-zinc-900 border-zinc-800 fill-white" 
-          showInteractive={false} 
-        />
-        
-        {/* Add Sonic Node FAB */}
-        <div className="absolute top-6 right-6 z-10">
-          <button 
-            onClick={handleAddNode}
-            className="flex items-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full backdrop-blur-md text-white font-medium transition-all shadow-lg hover:shadow-purple-500/20 hover:scale-105 active:scale-95"
+    <div className="w-full h-full min-h-[800px] border border-white/10 rounded-[1.4rem] bg-black/40 backdrop-blur-md relative overflow-hidden shadow-2xl transition-opacity duration-500" style={{ opacity: isLoaded ? 1 : 0 }}>
+      
+      {/* Search Bar Integration */}
+      <SeedSearchBar onSearchComplete={handleSpotifySearchComplete} />
+
+      {isLoaded && (
+        <div className="absolute inset-0 w-full h-full">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeDoubleClick={handleNodeDoubleClick}
+            nodeTypes={nodeTypes}
+            fitView
+            className="bg-transparent"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Sonic Node
-          </button>
+            <Background color="#ffffff" gap={24} size={1} />
+            <Controls 
+              className="bg-zinc-900 border-zinc-800 fill-white" 
+              showInteractive={false} 
+            />
+            
+            {/* Add Sonic Node FAB */}
+            <div className="absolute top-6 right-6 z-10">
+              <button 
+                onClick={handleAddNode}
+                className="flex items-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full backdrop-blur-md text-white font-medium transition-all shadow-lg hover:shadow-purple-500/20 hover:scale-105 active:scale-95"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Sonic Node
+              </button>
+            </div>
+          </ReactFlow>
         </div>
-      </ReactFlow>
+      )}
       
       {/* Generate / Player Container */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-10 w-full max-w-md px-4">
