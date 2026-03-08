@@ -22,8 +22,8 @@ export default function CustomNode({ data, selected }: { data: NodeData; selecte
 
   return (
     <div
-      className={`relative min-w-[220px] rounded-2xl p-4 bg-zinc-950/80 backdrop-blur-xl border-2 transition-all duration-300 shadow-xl ${
-        selected ? 'border-white/40 shadow-white/10 scale-105' : 'border-white/10 hover:border-white/20'
+      className={`relative min-w-[220px] rounded-2xl p-4 bg-zinc-950/80 backdrop-blur-xl border-2 transition-all duration-300 shadow-xl cursor-pointer ${
+        selected ? 'border-white/40 shadow-white/10 scale-[1.02]' : 'border-white/10 hover:border-white/30 hover:shadow-white/5 hover:scale-[1.02]'
       }`}
     >
       <Handle 

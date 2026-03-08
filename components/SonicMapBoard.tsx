@@ -10,7 +10,8 @@ import {
   Controls,
   Connection,
   Edge,
-  Node
+  Node,
+  NodeMouseHandler
 } from '@xyflow/react';
 import CustomNode from './CustomNode';
 
@@ -72,11 +73,31 @@ const initialNodes: Node[] = [
 ];
 
 const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#a855f7', strokeWidth: 2 } },
-  { id: 'e1-3', source: '1', target: '3', animated: true, style: { stroke: '#3b82f6', strokeWidth: 2 } },
-  { id: 'e2-4', source: '2', target: '4', animated: true, style: { stroke: '#10b981', strokeWidth: 2 } },
-  { id: 'e3-4', source: '3', target: '4', animated: true, style: { stroke: '#f59e0b', strokeWidth: 2 } },
-  { id: 'e4-5', source: '4', target: '5', animated: true, style: { stroke: '#ec4899', strokeWidth: 2 } },
+  { 
+    id: 'e1-2', source: '1', target: '2', animated: true, 
+    style: { stroke: '#a855f7', strokeWidth: 2, strokeDasharray: '4 4' },
+    className: 'animate-[dash_1s_linear_infinite]' 
+  },
+  { 
+    id: 'e1-3', source: '1', target: '3', animated: true, 
+    style: { stroke: '#3b82f6', strokeWidth: 2, strokeDasharray: '4 4' },
+    className: 'animate-[dash_1s_linear_infinite]'
+  },
+  { 
+    id: 'e2-4', source: '2', target: '4', animated: true, 
+    style: { stroke: '#10b981', strokeWidth: 2, strokeDasharray: '4 4' },
+    className: 'animate-[dash_1s_linear_infinite]'
+  },
+  { 
+    id: 'e3-4', source: '3', target: '4', animated: true, 
+    style: { stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: '4 4' },
+    className: 'animate-[dash_1s_linear_infinite]'
+  },
+  { 
+    id: 'e4-5', source: '4', target: '5', animated: true, 
+    style: { stroke: '#ec4899', strokeWidth: 2, strokeDasharray: '4 4' },
+    className: 'animate-[dash_1s_linear_infinite]'
+  },
 ];
 
 export default function SonicMapBoard() {
@@ -85,8 +106,22 @@ export default function SonicMapBoard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioResult, setAudioResult] = useState<string | null>(null);
 
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingNode, setEditingNode] = useState<Node | null>(null);
+  
+  // Form State
+  const [formTitle, setFormTitle] = useState('');
+  const [formType, setFormType] = useState('');
+  const [formDesc, setFormDesc] = useState('');
+
   const onConnect = useCallback(
-    (params: Connection | Edge) => setEdges((eds) => addEdge({ ...params, animated: true } as Edge, eds)),
+    (params: Connection | Edge) => setEdges((eds) => addEdge({ 
+      ...params, 
+      animated: true,
+      style: { stroke: '#fff', strokeWidth: 2, strokeDasharray: '4 4' },
+      className: 'animate-[dash_1s_linear_infinite]'
+    } as Edge, eds)),
     [setEdges]
   );
   
@@ -130,6 +165,57 @@ export default function SonicMapBoard() {
     }
   }, [nodes]);
 
+  // --- Interaction Handlers ---
+
+  const handleNodeDoubleClick: NodeMouseHandler = useCallback((event, node) => {
+    setEditingNode(node);
+    setFormTitle(node.data.title as string);
+    setFormType(node.data.type as string);
+    setFormDesc(node.data.description as string);
+    setIsModalOpen(true);
+  }, []);
+
+  const handleSaveNode = () => {
+    if (!editingNode) return;
+
+    setNodes((nds) => 
+      nds.map((node) => {
+        if (node.id === editingNode.id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              title: formTitle,
+              type: formType,
+              description: formDesc
+            }
+          };
+        }
+        return node;
+      })
+    );
+    setIsModalOpen(false);
+    setEditingNode(null);
+  };
+
+  const handleAddNode = () => {
+    const newNodeId = `new_node_${Date.now()}`;
+    const newNode: Node = {
+      id: newNodeId,
+      type: 'custom',
+      position: { 
+        x: Math.random() * 200 + 100, // randomized spawn area
+        y: Math.random() * 200 + 100 
+      },
+      data: {
+        title: 'New Element',
+        type: 'Misc',
+        description: 'Describe your sound here...'
+      }
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
   return (
     <div className="w-full h-full min-h-[600px] border border-white/10 rounded-[1.4rem] bg-black/40 backdrop-blur-md relative overflow-hidden shadow-2xl">
       <ReactFlow
@@ -138,6 +224,7 @@ export default function SonicMapBoard() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeDoubleClick={handleNodeDoubleClick}
         nodeTypes={nodeTypes}
         fitView
         className="bg-transparent"
@@ -147,6 +234,19 @@ export default function SonicMapBoard() {
           className="bg-zinc-900 border-zinc-800 fill-white" 
           showInteractive={false} 
         />
+        
+        {/* Add Sonic Node FAB */}
+        <div className="absolute top-6 right-6 z-10">
+          <button 
+            onClick={handleAddNode}
+            className="flex items-center gap-2 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full backdrop-blur-md text-white font-medium transition-all shadow-lg hover:shadow-purple-500/20 hover:scale-105 active:scale-95"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Sonic Node
+          </button>
+        </div>
       </ReactFlow>
       
       {/* Generate / Player Container */}
@@ -206,6 +306,63 @@ export default function SonicMapBoard() {
           </div>
         )}
       </div>
+
+      {/* Node Editing Modal */}
+      {isModalOpen && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 w-[400px] shadow-2xl scale-in-center">
+            <h3 className="text-xl font-bold text-white mb-4">Edit Sonic Node</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1">Sonic Title</label>
+                <input 
+                  type="text" 
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1">Sonic Category / Type</label>
+                <input 
+                  type="text" 
+                  value={formType}
+                  onChange={(e) => setFormType(e.target.value)}
+                  placeholder="e.g Rhythm, Melody, Mood..."
+                  className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1">Acoustic Description</label>
+                <textarea 
+                  value={formDesc}
+                  onChange={(e) => setFormDesc(e.target.value)}
+                  rows={3}
+                  className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500 transition-colors resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSaveNode}
+                className="px-6 py-2 rounded-lg text-sm font-bold bg-white text-black hover:bg-zinc-200 transition-colors shadow-lg"
+              >
+                Save Elements
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Glow effect overlay */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>

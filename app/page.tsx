@@ -21,15 +21,14 @@ export default function Home() {
         </h1>
         
         <p className="max-w-2xl mx-auto text-lg sm:text-xl text-zinc-400 leading-relaxed">
-          Create, explore, and connect audio nodes in a boundless dimensional space.
-          The ultimate platform for visual soundscapes and infinite musical exploration.
+          Decompose music into interactive Sonic Nodes. Weave Aura Flows in an infinite spatial canvas to generate your ultimate AI Tribute.
         </p>
 
         <div className="flex items-center justify-center gap-4 pt-4">
-          <button className="px-8 py-3 rounded-full bg-white text-black font-semibold hover:bg-zinc-200 transition-colors duration-200">
-            Start Creating
+          <button className="px-8 py-3 rounded-full bg-white text-black font-semibold hover:bg-zinc-200 hover:scale-[1.02] active:scale-95 transition-all duration-200">
+            Open Sonic Blueprint
           </button>
-          <button className="px-8 py-3 rounded-full bg-white/5 text-white border border-white/10 font-medium hover:bg-white/10 transition-colors duration-200">
+          <button className="px-8 py-3 rounded-full bg-white/5 text-white border border-white/10 font-medium hover:bg-white/10 hover:scale-[1.02] active:scale-95 transition-all duration-200">
             Learn More
           </button>
         </div>
@@ -37,7 +36,7 @@ export default function Home() {
 
       {/* App Workspace Area */}
       <div className="w-full max-w-6xl mx-auto flex-1 flex flex-col">
-        <div className="flex-1 min-h-[600px] w-full p-1 rounded-3xl bg-gradient-to-b from-white/10 to-transparent shadow-2xl">
+        <div className="flex-1 min-h-[600px] w-full p-1 rounded-3xl bg-gradient-to-b from-white/10 to-transparent shadow-2xl transition-all duration-500 hover:shadow-purple-500/10 hover:border-white/20">
           <SonicMapBoard />
         </div>
       </div>
